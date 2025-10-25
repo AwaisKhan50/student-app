@@ -5,11 +5,7 @@ export const  studentList = async(req,res) => {
       try {
               const db = await connectDB();
               const [rows] = await db.execute('SELECT * FROM studentList');
-              console.log(`studentList: fetched ${Array.isArray(rows) ? rows.length : 0} rows`);
               // log a small preview to help debugging (first 3 rows)
-              if (Array.isArray(rows) && rows.length > 0) {
-                  console.log('studentList preview:', JSON.stringify(rows.slice(0,3)));
-              }
               return res.status(200).json(rows);
           } catch (err) {
               console.error('Error fetching students', err);
@@ -18,7 +14,7 @@ export const  studentList = async(req,res) => {
 }
 
 export const createStudent = async (req,res) => {
-
+ 
   try {
         const {name,email} = req.body
         const db=await connectDB();

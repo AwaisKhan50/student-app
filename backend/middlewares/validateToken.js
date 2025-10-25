@@ -13,7 +13,7 @@ import jwt from "jsonwebtoken";
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
     // 3️⃣ Attach user data to request
-    req.user = decoded;
+    req.user = decoded  ;
 
     // 4️⃣ Continue to next middleware
     next();

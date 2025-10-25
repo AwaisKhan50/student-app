@@ -9,7 +9,9 @@ axios.defaults.withCredentials = true;
 export default function Home() {
   const [studentData, setstudentData] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [name, setname] = useState("")
   const [error, setError] = useState(null);
+  const [email, setemail] = useState("")
   const { id } = useParams();
   const navigate = useNavigate();
   const [loggingOut, setLoggingOut] = useState(false);
@@ -34,13 +36,21 @@ export default function Home() {
         if (mounted) setLoading(false);
       }
 
-      // non-blocking auth check (do not force redirect)
       (async () => {
         try {
-          const res=await axios.get("/home");
-          if(res.status===!200){
-            navigate('/login')
+          const res = await axios.get("/home");
+          if (res.status !== 200) {
+            navigate("/login");
+            return;
           }
+
+          const username =
+            
+            res?.data?.userData?.username ||
+            "";
+          setname(username);
+          setemail(res?.data?.email || "");
+          console.log("auth check:", res.data);
         } catch (e) {
           console.debug("auth check (non-blocking) failed", e?.message || e);
         }
@@ -52,7 +62,7 @@ export default function Home() {
     return () => {
       mounted = false;
     };
-  }, [id]);
+  }, [id, navigate]);
 
   const handleLogOut = async () => {
     try {
@@ -81,7 +91,9 @@ export default function Home() {
 
   return (
     <>
-    <div className="w-full flex justify-end px-6 h-15 items-center bg-zinc-500">
+    <div className="w-full flex justify-between px-6 h-15 items-center bg-zinc-500">
+      <h1>Welcome, {name}!</h1>
+      <h2>your email is {email}</h2>
       <div className="flex items-center gap-3">
         <button onClick={handleLogOut} disabled={loggingOut} className="bg-red-400 cursor-pointer hover:bg-zinc-400 text-amber-50 text-xl h-8 border-amber-400 px-2 rounded disabled:opacity-60">logout</button>
         {loggingOut && <span className="text-sm text-white">Logging out…</span>}
