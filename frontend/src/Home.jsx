@@ -2,6 +2,10 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { Link, useNavigate, useParams } from "react-router-dom";
 
+// Set axios defaults once (keeps component clean and prevents reassigning on every render)
+axios.defaults.baseURL = "http://localhost:5000";
+axios.defaults.withCredentials = true;
+
 export default function Home() {
   const [studentData, setstudentData] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -9,41 +13,46 @@ export default function Home() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [loggingOut, setLoggingOut] = useState(false);
-  
 
   useEffect(() => {
-    const init = async () => {
-      // auth check
-      axios.defaults.withCredentials=true
-      try {
-        const res = await axios.get('http://localhost:5000/home', { withCredentials: true });
-        if (res.status !== 200) {
-          navigate('/login');
-          return;
-        }
-      } catch (error) {
-        console.error('auth check failed', error);
-        navigate('/login');
-        return;
-      }
+    let mounted = true;
 
-      // fetch students
+    const init = async () => {
       setLoading(true);
       try {
-        const response = await axios.get('http://localhost:5000/students');
-         setstudentData(response.data || []);
+        const response = await axios.get("/students");
+        if (!mounted) return;
+        // Expecting an array of students from the protected endpoint
+        setstudentData(response.data || []);
         setError(null);
       } catch (err) {
-        console.error('Failed to fetch students', err);
+        console.error("Failed to fetch /students", err?.message || err);
+        if (!mounted) return;
         setstudentData([]);
-        setError(err?.message || 'Failed to fetch students');
+        setError(err?.message || "Failed to fetch students");
       } finally {
-        setLoading(false);
+        if (mounted) setLoading(false);
       }
+
+      // non-blocking auth check (do not force redirect)
+      (async () => {
+        try {
+          const res=await axios.get("/home");
+          if(res.status===!200){
+            navigate('/login')
+          }
+        } catch (e) {
+          console.debug("auth check (non-blocking) failed", e?.message || e);
+        }
+      })();
     };
 
     init();
-  }, [id, navigate]);
+
+    return () => {
+      mounted = false;
+    };
+  }, [id]);
 
   const handleLogOut = async () => {
     try {

@@ -15,7 +15,7 @@ authRouter.get("/check-auth", validateToken, async(req, res) => {
 
 
 
-authRouter.get('/home',validateToken,async (req,res)=>{
+authRouter.get('/home',validateToken,async (req,res,next)=>{
   try {
 
     const [user]=await db.query("SELECT username, email FROM users WHERE id = ?", [req.user.id])

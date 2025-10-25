@@ -11,7 +11,8 @@ export default function Login() {
 
   const handleChanges = (e) => {
     setValues({ ...values, [e.target.name]: e.target.value });
-    setError(""); // Clear error when user starts typing
+
+    setError(""); 
   };
 
   const handleSubmit = async (e) => {
@@ -24,27 +25,24 @@ export default function Login() {
       console.log(response.data.message);
       
       if (response.status === 200) {
-        // Clear form values
+      
         setValues({ email: "", password: "" });
-        // store a simple auth token (backend may return a real token)
-        // if backend returns a token, store that instead of a placeholder
-        const token = response.data?.token || 'placeholder-token';
-        localStorage.setItem('token', token);
+       
 
-        // navigate to previous page or home
+        
         const from = (location.state && location.state.from) ? location.state.from.pathname : '/';
         navigate(from, { replace: true });
       }
     } catch (error) {
       console.error(error);
       if (error.response) {
-        // The server responded with an error status code
+       
         setError(error.response.data.message || "Login failed");
       } else if (error.request) {
-        // The request was made but no response was received
+       
         setError("Network error. Please try again.");
       } else {
-        // Something else happened
+       
         setError("An unexpected error occurred.");
       }
     } finally {
