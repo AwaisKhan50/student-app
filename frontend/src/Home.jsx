@@ -11,6 +11,7 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
   const [name, setname] = useState("")
   const [error, setError] = useState(null);
+  const [search, setSearch] = useState("");
   const [email, setemail] = useState("")
   const { id } = useParams();
   const navigate = useNavigate();
@@ -22,7 +23,9 @@ export default function Home() {
     const init = async () => {
       setLoading(true);
       try {
-        const response = await axios.get("/students");
+        const response = await axios.get("/students",{
+          params: { name:search }
+        });
         if (!mounted) return;
         // Expecting an array of students from the protected endpoint
         setstudentData(response.data || []);
@@ -62,7 +65,7 @@ export default function Home() {
     return () => {
       mounted = false;
     };
-  }, [id, navigate]);
+  }, [id, navigate,search]);
 
   const handleLogOut = async () => {
     try {
@@ -98,6 +101,15 @@ export default function Home() {
         <button onClick={handleLogOut} disabled={loggingOut} className="bg-red-400 cursor-pointer hover:bg-zinc-400 text-amber-50 text-xl h-8 border-amber-400 px-2 rounded disabled:opacity-60">logout</button>
         {loggingOut && <span className="text-sm text-white">Logging out…</span>}
       </div>
+    </div>
+
+    <div className="w-full h-20 flex justify-between items-center">
+      <input className="mx-auto mt-4 p-2 border border-gray-300 rounded-lg w-1/3"
+        type="text"
+        placeholder="Search by name..."
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+      />
     </div>
     <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100 p-6">
       <div className="w-full max-w-4xl bg-white shadow-lg rounded-2xl p-6 relative">

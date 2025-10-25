@@ -3,10 +3,17 @@ import { connectDB } from '../db/dbConnection.js';
 
 export const  studentList = async(req,res) => {
       try {
-              const db = await connectDB();
-              const [rows] = await db.execute('SELECT * FROM studentList');
+            const {name} = req.query;
+            const db = await connectDB();
+            const params = [];
+            let query = 'SELECT * FROM studentList';
+            if(name){
+                query += ' WHERE name LIKE ?';
+                params.push(`%${name}%`);
+            }
+              const [rows] = await db.execute(query,params);
               // log a small preview to help debugging (first 3 rows)
-              return res.status(200).json(rows);
+              return res.status(200).json(rows); 
           } catch (err) {
               console.error('Error fetching students', err);
               return res.status(500).json({ error: 'Failed to fetch students' });
